@@ -9,6 +9,11 @@ class Game
     player.lives = 6
   end
 
+  def show_save_list
+    save_list.each_with_index do |item, index|
+      puts "#{index + 1} : #{item}"
+    end
+  end
   def show_correct_letters
     p player.guessed_letters.join(' ').upcase
   end
@@ -52,6 +57,11 @@ class Game
   def save_game
     File.open("lib/hangman/saves/#{Time.now.strftime("%Y-%m-%d_%H-%M-%S")}.yml", 'w') do |file|
       file.write(player.to_yaml)
+    end
+  end
+  def save_list
+    Dir.entries('lib/hangman/saves').select do |file|
+      File.file?(File.join('lib/hangman/saves', file))
     end
   end
 end
