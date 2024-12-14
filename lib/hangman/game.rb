@@ -1,6 +1,6 @@
 require_relative 'player.rb'
 class Game
-  @@word_pool = File.readlines('words.txt', chomp: true)
+  @@word_pool = File.readlines('lib/hangman/words.txt', chomp: true)
   attr_accessor :secret_word, :player
   def initialize(player)
     @secret_word = random_word
@@ -10,14 +10,25 @@ class Game
   end
 
   def show_correct_letters
-    player.guessed_words.join('').upcase
+    p player.guessed_letters.join(' ').upcase
   end
-
+  def player_win?
+    if player.guessed_letters.include?('___')
+      false
+    else
+      true
+    end
+  end
   def evaluate_guess(guess)
-    if secret_word.include?(guess)
-      index = secret_word.index(guess)
-      self.secret_word[index] = '-'
-      player.guessed_letters[index] = guess
+    puts ''
+    puts 'type "save" to save the game!'
+    if guess.downcase == 'save'
+      save_game
+      puts 'game saved sucessfully!'
+    elsif secret_word.include?(guess.downcase)
+      index = secret_word.index(guess.downcase)
+      self.secret_word[index] = '___'
+      player.guessed_letters[index] = guess.downcase
     else
       player.lives -= 1
     end
@@ -34,15 +45,21 @@ class Game
 
   def initial_guessed_letters(player)
     secret_word.length.times do
-      player.guessed_letters << '-'
+      player.guessed_letters << '___'
+    end
+  end
+
+  def save_game
+    File.open("lib/hangman/saves/#{Time.now.strftime("%Y-%m-%d_%H-%M-%S")}.yml", 'w') do |file|
+      file.write(player.to_yaml)
     end
   end
 end
 
-player = Player.new
-game = Game.new(player)
-p game.secret_word
-game.evaluate_guess('i')
-p player.lives
-p player.guessed_letters
+# player = Player.new
+# game = Game.new(player)
+# p game.secret_word
+# game.evaluate_guess('i')
+# p player.lives
+# p player.guessed_letters
 
